@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="KE5F32PIGqZThVhnw5kJiI">
+<head data-page-node-id="gBv1eRCc84hmvpysJwZwui">
+<meta charset="UTF-8" data-page-node-id="z5dYNsKQrcY1tYfG3Q9R7r">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="xkQPBQR3YBMlzjXYcsE4yz">
+<title>Day5 - FastAPI 接口测试页</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Microsoft YaHei", sans-serif;
+    max-width: 780px; margin: 32px auto; padding: 0 20px;
+    background: #f7f8fa; color: #1f2328; line-height: 1.6;
+  }
+  h1 { font-size: 22px; margin-bottom: 4px; }
+  .sub { color: #6b7280; font-size: 13px; margin-bottom: 24px; }
+  .card {
+    background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 16px;
+  }
+  .card h2 { font-size: 15px; margin: 0 0 10px; }
+  input, button, select { font-size: 14px; padding: 7px 10px; border-radius: 6px; }
+  input { border: 1px solid #d1d5db; width: 100%; margin-bottom: 8px; }
+  button {
+    background: #2563eb; color: #fff; border: none; cursor: pointer;
+    margin-right: 6px; margin-top: 2px;
+  }
+  button:hover { background: #1d4ed8; }
+  button.gray { background: #6b7280; }
+  button.gray:hover { background: #4b5563; }
+  pre {
+    background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px;
+    overflow-x: auto; font-size: 12.5px; min-height: 42px; white-space: pre-wrap;
+    word-break: break-all; margin: 10px 0 0;
+  }
+  .ok { color: #16a34a; font-weight: 600; }
+  .err { color: #dc2626; font-weight: 600; }
+  .hint { font-size: 12px; color: #6b7280; margin-top: 6px; }
+</style>
+</head>
+<body data-page-node-id="p9l3by7In9FnEPiyJGKpdm">
+
+<h1 data-page-node-id="eE3tvm7BPVvfJp1Hd933LN">Day 5 · FastAPI 接口测试页</h1>
+<div class="sub" data-page-node-id="nIDyxD2kW9OMOSJCspfhPx">
+  这个页面用 fetch 调用另一台"服务器"（localhost:8000）。
+  如果 CORS 没配好，下面的请求会全部失败 —— 这就是跨域。
+</div>
+
+<div class="card" data-page-node-id="lsBnEa4VYaf57uC1k8L67A">
+  <h2 data-page-node-id="IpsxQGGy7DY6ciTJF3rz2x">① POST /chat —— 普通聊天</h2>
+  <input id="msg" value="你好" placeholder="输入消息" data-page-node-id="Hng6U3nAObHcQmeRjrRypu">
+  <button onclick="sendChat()" data-page-node-id="V5EYn26zrpvwHlteVKdVwL">发送</button>
+  <button class="gray" onclick="sendEmpty()" data-page-node-id="UMljSSvQIyAW7ozJ87b6md">故意发空消息（看 422）</button>
+  <pre id="out1" data-page-node-id="sgnB5ry9leDowKKqezfpMH">等待请求...</pre>
+  <div class="hint" data-page-node-id="wdcObEYyYO1ganAqPXnFjp">空消息会被 Pydantic 拦下，返回 422，并告诉你哪个字段不合规。</div>
+</div>
+
+<div class="card" data-page-node-id="efU58r7jzlDs3zXSMUh1Qj">
+  <h2 data-page-node-id="GEagLAut2idEGBjZbLKkt3">② POST /chat/secure —— 带 API Key 鉴权</h2>
+  <input id="key" placeholder="填 .env 里的 API_KEY 值，例如 sk-fake-test-123456" data-page-node-id="pYrWmTWWHIGkTUNRnKqJAV">
+  <button onclick="sendSecure()" data-page-node-id="Nsq9Wz0K6PLzmNEwqAGpHa">用正确 Key 请求</button>
+  <button class="gray" onclick="sendBadKey()" data-page-node-id="psVGSlmtECBIUuPxAD2sbH">用错误 Key 请求（看 401）</button>
+  <pre id="out2" data-page-node-id="Wl6PJLDuN2Nap3sukljvEM">等待请求...</pre>
+</div>
+
+<div class="card" data-page-node-id="wA9rADDzAPcqfyg91u7Hyp">
+  <h2 data-page-node-id="0GQ0BaqcFqHEOy80i0t6nh">③ GET /chat/history/{session_id} —— 路径参数 + 查询参数</h2>
+  <input id="sid" value="abc123" placeholder="会话 ID" data-page-node-id="gTkFsn2FMOud0vFexA4ZzW">
+  <button onclick="getHistory('abc123')" data-page-node-id="An6IMxCOQnii8KOhdaHXMU">查存在的会话</button>
+  <button class="gray" onclick="getHistory('unknown')" data-page-node-id="yEeToirZVIJpOSlznBZyqk">查 unknown（看 404）</button>
+  <pre id="out3" data-page-node-id="cIzOtqR1SYXRECJ1folIWf">等待请求...</pre>
+</div>
+
+<div class="card" data-page-node-id="2jmKXkelVWTAMPXuwaucDd">
+  <h2 data-page-node-id="7RFRi4fJyFDOXL3jiwHpVt">④ GET /stream —— SSE 流式输出（async）</h2>
+  <input id="smsg" value="这是流式输出，一个字一个字来" data-page-node-id="GTRDXVVDWWXZUDueB0kOYY">
+  <button onclick="startStream()" data-page-node-id="aacGfEJhfKCfxI8MHiRitk">开始流式接收</button>
+  <pre id="out4" data-page-node-id="RZaYnhsgN3QaaupAnuPPc1">等待请求...</pre>
+</div>
+
+<script>
+const BASE = 'http://localhost:8000';
+const show = (id, text, isErr) => {
+  document.getElementById(id).innerHTML =
+    `<span class="${isErr ? 'err' : 'ok'}">${isErr ? '失败' : '成功'}</span>\n${text}`;
+};
+
+async function sendChat() {
+  const message = document.getElementById('msg').value;
+  const res = await fetch(BASE + '/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, session_id: 'web-demo' })
+  });
+  const data = await res.json();
+  show('out1', `HTTP ${res.status}\n` + JSON.stringify(data, null, 2), !res.ok);
+}
+
+async function sendEmpty() {
+  const res = await fetch(BASE + '/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: '' })
+  });
+  const data = await res.json();
+  show('out1', `HTTP ${res.status}\n` + JSON.stringify(data, null, 2), true);
+}
+
+async function sendSecure() {
+  const key = document.getElementById('key').value.trim();
+  const res = await fetch(BASE + '/chat/secure', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': key },
+    body: JSON.stringify({ message: '带鉴权的请求', session_id: 'web-demo' })
+  });
+  const data = await res.json();
+  show('out2', `HTTP ${res.status}\n` + JSON.stringify(data, null, 2), !res.ok);
+}
+
+async function sendBadKey() {
+  const res = await fetch(BASE + '/chat/secure', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-API-Key': 'wrong-key' },
+    body: JSON.stringify({ message: '错误的key', session_id: 'web-demo' })
+  });
+  const data = await res.json();
+  show('out2', `HTTP ${res.status}\n` + JSON.stringify(data, null, 2), true);
+}
+
+async function getHistory(sid) {
+  const limit = document.getElementById('sid') ? 10 : 10;
+  const res = await fetch(`${BASE}/chat/history/${sid}?limit=${limit}`);
+  const data = await res.json();
+  show('out3', `HTTP ${res.status}\n` + JSON.stringify(data, null, 2), !res.ok);
+}
+
+async function startStream() {
+  const message = encodeURIComponent(document.getElementById('smsg').value);
+  const box = document.getElementById('out4');
+  box.textContent = '接收中...';
+  const res = await fetch(`${BASE}/stream?message=${message}`);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let text = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    text += decoder.decode(value, { stream: true });
+    box.textContent = text;
+  }
+  box.innerHTML = `<span class="ok">完成</span>\n${text}`;
+}
+</script>
+
+</body>
+</html>

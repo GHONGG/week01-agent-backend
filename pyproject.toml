@@ -1,0 +1,20 @@
+[project]
+name = "week01-agent-backend"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "GHONGG", email = "3432733171@qq.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.141.1",
+    "pydantic-settings>=2.15.0",
+    "uvicorn>=0.52.4",
+]
+
+[project.scripts]
+week01-agent-backend = "week01_agent_backend:main"
+
+[build-system]
+requires = ["uv_build>=0.12.10,<0.13.0"]
+build-backend = "uv_build"
